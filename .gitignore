@@ -1,0 +1,11 @@
+*/**/.idea
+todos
+statsig
+shell-snapshots
+projects
+settings*
+ide
+plugins
+file-history
+history.jsonl
+.DS_Store
