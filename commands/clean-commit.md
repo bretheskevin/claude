@@ -31,10 +31,9 @@ Your task is to prepare a clean, production-ready Git commit that strictly follo
         - Max ~72 characters (including ticket)
         - No trailing period
         - Ticket appended in brackets at the end (only if detected)
-    - Description (required for complex commits):
-        - Explain **what** changed
-        - Explain **why** it changed
-        - Mention side effects, risks, or migrations if relevant
+    - Description (optional):
+        - Be concise: explain **what** and **why** in as few words as possible
+        - Skip obvious details, focus on non-trivial context
 
 5. Display the full commit message:
     - Show both subject and description exactly as they will be used.
