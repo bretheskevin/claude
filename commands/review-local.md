@@ -69,6 +69,7 @@ If arguments are provided, apply them as path filters on top of the chosen mode:
 
    | Detection | Rule file |
    |-----------|-----------|
+   | **Always loaded** | `security.md` |
    | `.rb` files changed, `Gemfile`, or `config/routes.rb` | `rails.md` |
    | `_spec.rb` files changed | `rspec.md` |
    | `.html.erb` files changed | `erb.md` |
@@ -82,7 +83,7 @@ If arguments are provided, apply them as path filters on top of the chosen mode:
    | `.scss` or `.css` files changed | `scss.md` |
    | `src/components/ui/` dir exists (shadcn installed) and `.tsx` files changed | `shadcn.md` |
 
-   **Read only the rule files that match.** Apply their checks in addition to the universal checks below.
+   **Always load `security.md`.** Read only the other rule files that match. Apply their checks in addition to the universal checks below.
 
 6. Note which categories of files are in the diff — this determines which universal review sections apply:
    - **Frontend files**: `.tsx`, `.jsx`, `.css`, component files

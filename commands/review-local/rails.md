@@ -40,3 +40,13 @@
 - Flag `find(params[:id])` without scoping to current user/tenant — use `current_user.resources.find(params[:id])` or equivalent authorization
 - Flag raw SQL with string interpolation — use parameterized queries or ActiveRecord methods
 - Flag `skip_before_action :verify_authenticity_token` without strong justification (API-only endpoints are OK)
+- Flag `system()`, backticks, `Open3`, `IO.popen` with interpolated user input — command injection
+- Flag `Marshal.load` / `YAML.load` / `YAML.unsafe_load` with untrusted data — deserialization leading to RCE
+- Flag `redirect_to params[...]` without URL validation — open redirect
+- Flag `permit` including sensitive fields (`:role`, `:admin`, `:verified`, `:permissions`) — mass assignment escalation
+- Flag missing `filter_parameters` for sensitive data (passwords, tokens, card numbers) in logs
+- Flag sessions with `secure: false` or `httponly: false` — session hijacking
+- Flag `send_file` / `send_data` with user-controlled path — path traversal
+- Flag `render inline:` or `render html:` with user data — server-side XSS
+- Flag `==` for comparing tokens/secrets — use `ActiveSupport::SecurityUtils.secure_compare` (timing attack)
+- Flag `Tempfile` or file operations with user-controlled names without sanitization

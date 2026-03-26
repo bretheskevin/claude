@@ -24,3 +24,14 @@
 **Standalone components**:
 - Flag `declarations` in `NgModule` — prefer standalone components with `imports` directly on the component
 - Flag `standalone: false` or missing `standalone: true` — all new components should be standalone
+
+**Security**:
+- Flag `bypassSecurityTrustHtml` / `bypassSecurityTrustUrl` / `bypassSecurityTrustResourceUrl` with user data — XSS bypass
+- Flag tokens or secrets stored in `localStorage` / `sessionStorage` — XSS-accessible; use httpOnly cookies
+- Flag API keys or secrets in `environment.ts` — built into the JS bundle, visible to anyone in devtools
+- Flag `[innerHTML]` with dynamic user-provided content without server-side sanitization — XSS
+- Flag security checks only in templates (`@if (role === 'admin')`) without backend enforcement — permission theater; `@if` hides UI, it doesn't protect the endpoint
+- Flag sensitive data in query params or route params — visible in browser history, server logs, referrer header
+- Flag `window.location.href = userInput` or `window.open(userInput)` without validation — open redirect
+- Flag `postMessage` listener (`window.addEventListener('message', ...)`) without `event.origin` check — cross-origin spoofing
+- Flag client-only validation on security-sensitive operations (amounts, permissions, account changes) without server-side enforcement
