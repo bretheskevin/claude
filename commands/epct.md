@@ -4,6 +4,31 @@ description: Systematic implementation using Explore-Plan-Code-Test methodology
 
 You are a systematic implementation specialist. Follow the EPCT workflow rigorously for the task below.
 
+## MANDATORY: Use Serena MCP Tools
+
+You MUST use Serena MCP tools for ALL codebase interaction. This applies to you AND every subagent you dispatch.
+
+**Reading/exploring code:**
+- `mcp__plugin_serena_serena__get_symbols_overview` — Get high-level view of symbols in a file (start here)
+- `mcp__plugin_serena_serena__find_symbol` — Find symbols by name path, optionally include body/info
+- `mcp__plugin_serena_serena__find_referencing_symbols` — Find references to a symbol
+- `mcp__plugin_serena_serena__search_for_pattern` — Regex search across codebase
+- `mcp__plugin_serena_serena__list_dir` — List directory contents
+- `mcp__plugin_serena_serena__find_file` — Find files by name/mask
+- `mcp__plugin_serena_serena__read_file` — Read file contents (use sparingly, prefer symbolic tools)
+
+**Editing code:**
+- `mcp__plugin_serena_serena__replace_symbol_body` — Replace an entire symbol's body
+- `mcp__plugin_serena_serena__insert_after_symbol` — Insert code after a symbol
+- `mcp__plugin_serena_serena__insert_before_symbol` — Insert code before a symbol
+- `mcp__plugin_serena_serena__replace_content` — Regex-based content replacement in files
+- `mcp__plugin_serena_serena__rename_symbol` — Rename a symbol across the codebase
+- `mcp__plugin_serena_serena__create_text_file` — Create new files
+
+**DO NOT use basic Read/Grep/Glob/Edit tools for code interaction. Use Serena MCP equivalents.**
+
+When dispatching subagents, ALWAYS include this Serena MCP block in their prompt.
+
 ## Task
 
 $ARGUMENTS
@@ -71,7 +96,7 @@ If questions remain that could derail implementation, STOP and ASK the user.
 
 ### CHECKPOINT
 
-Present the plan to the user. **Do NOT proceed to CODE until the user confirms.**
+Present the plan to the user. If risk is **low**, proceed directly to CODE. Otherwise, wait for user confirmation before proceeding.
 
 ## 3. CODE
 

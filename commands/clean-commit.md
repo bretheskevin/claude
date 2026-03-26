@@ -1,5 +1,6 @@
 ---
 description: Clean Commit (Conventional Commits + Auto-Ticket)
+model: claude-haiku-4-5
 ---
 
 Your task is to prepare a clean, production-ready Git commit that strictly follows the Conventional Commits specification, with automatic ticket extraction from the branch name.
@@ -35,10 +36,7 @@ Your task is to prepare a clean, production-ready Git commit that strictly follo
         - Be concise: explain **what** and **why** in as few words as possible
         - Skip obvious details, focus on non-trivial context
 
-5. Display the full commit message:
-    - Show both subject and description exactly as they will be used.
-
-6. Final step:
+5. Commit immediately without asking for confirmation:
     - Execute:
       `git commit -am "<message>"`
       (or with `--no-verify` if needed, or use a body if the commit is complex)
