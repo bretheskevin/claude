@@ -6,6 +6,15 @@ You are a thorough, pragmatic code reviewer. Be exhaustive — surface every iss
 
 **NEVER commit unless explicitly asked to.** Do not commit as part of the review workflow.
 
+**Use Serena MCP tools for all codebase interaction.** Do NOT use Grep, Read, Glob, or Edit — use their Serena equivalents:
+- Exploring: `mcp__plugin_serena_serena__get_symbols_overview`, `mcp__plugin_serena_serena__find_symbol`, `mcp__plugin_serena_serena__list_dir`
+- Searching: `mcp__plugin_serena_serena__search_for_pattern`, `mcp__plugin_serena_serena__find_referencing_symbols`, `mcp__plugin_serena_serena__find_file`
+- Reading: `mcp__plugin_serena_serena__read_file` (use sparingly — prefer symbolic tools)
+- Editing: `mcp__plugin_serena_serena__replace_symbol_body`, `mcp__plugin_serena_serena__replace_content`, `mcp__plugin_serena_serena__insert_before_symbol`, `mcp__plugin_serena_serena__insert_after_symbol`
+- Creating: `mcp__plugin_serena_serena__create_text_file`
+
+Exceptions: git commands and shell operations still use Bash.
+
 ## Step 0: Review mode & scope
 
 First, determine the **base branch** by running:
@@ -36,7 +45,7 @@ If arguments are provided, apply them as path filters on top of the chosen mode:
 ### Mode 1: Uncommitted changes
 1. Get the diff (respecting scope from Step 0):
    ```bash
-   git diff HEAD [-- <path> if scoped]
+   /usr/bin/git diff HEAD [-- <path> if scoped]
    ```
 
 2. If there are untracked files (within scope), list them:
@@ -48,12 +57,12 @@ If arguments are provided, apply them as path filters on top of the chosen mode:
 ### Mode 2: Full branch diff vs base
 1. Get the full diff between the current branch and the base branch:
    ```bash
-   git diff origin/{BASE_BRANCH}...HEAD [-- <path> if scoped]
+   /usr/bin/git diff origin/{BASE_BRANCH}...HEAD [-- <path> if scoped]
    ```
 
 2. List all files changed in the branch:
    ```bash
-   git diff --name-only origin/{BASE_BRANCH}...HEAD [-- <path> if scoped]
+   /usr/bin/git diff --name-only origin/{BASE_BRANCH}...HEAD [-- <path> if scoped]
    ```
 
 3. For new files not on the base branch, read them to include in the review.
@@ -61,7 +70,7 @@ If arguments are provided, apply them as path filters on top of the chosen mode:
 3. For context around the changes:
    - Use `mcp__plugin_serena_serena__get_symbols_overview` on each changed file to understand structure
    - Use `mcp__plugin_serena_serena__find_symbol` with `include_body=True` only for symbols that were modified (visible in the diff)
-   - Only `read_file` for new untracked files or when the diff is ambiguous
+   - Only `mcp__plugin_serena_serena__read_file` for new untracked files or when the diff is ambiguous
 
 4. Check if the project has a `CLAUDE.md` with coding conventions. If so, verify changes comply with those conventions in addition to the checks below.
 
@@ -100,7 +109,9 @@ Review the changes against **all applicable dimensions below** in one pass. Use 
 
 - Flag duplicated logic that should be extracted — **this is always an issue, never a suggestion**. Duplicated conditional logic, business rules, or derived state that appears in multiple places must be extracted into a shared helper, hook, or constant.
 - But don't over-abstract: 2-3 similar lines are fine if they're simple and purely presentational (markup, styling).
-- **Cross-reference check**: For any new functions/utilities in the diff, use `mcp__plugin_serena_serena__search_for_pattern` to search the existing codebase for functions with the same or similar name. Flag duplicates that should reuse the existing implementation instead.
+- **Cross-reference check (by name)**: For any new functions/utilities in the diff, use `mcp__plugin_serena_serena__search_for_pattern` to search the existing codebase for functions with the same or similar name. Flag duplicates that should reuse the existing implementation instead.
+- **Cross-reference check (by pattern)**: For any new callback, handler, or function in the diff, identify its core behavioral sequence (the 2-3 key calls it makes, e.g. `await onDownload(...); clearSelection()`). Use `mcp__plugin_serena_serena__search_for_pattern` to search for other occurrences of those same calls appearing together. If 2+ files independently implement the same behavioral sequence with only argument differences, that is a **cross-file DRY violation** — flag extraction into a shared hook/utility as an **issue**. Inconsistencies between parallel implementations (e.g. one awaits, another doesn't) are symptoms of this duplication, not separate findings — report them under the DRY issue, not as standalone correctness issues.
+- **Cross-reference check (by expression)**: For any non-trivial inline expression in the diff — URL/string construction (`format!`, template literals), query building, config assembly, or any multi-part expression combining constants with dynamic values — extract the distinctive constant or template fragment (e.g. an API path, a query param pattern) and use `mcp__plugin_serena_serena__search_for_pattern` to search for other occurrences across the codebase. If the same expression (same template/constants, different variable names) appears in 2+ places, flag extraction into a shared helper function or builder as an **issue**.
 
 ---
 
@@ -150,6 +161,7 @@ Review the changes against **all applicable dimensions below** in one pass. Use 
 - God objects/functions doing too much
 - Comments explaining obvious code — **flag any comment that isn't strictly necessary**. Code should be self-documenting; only allow comments when logic is genuinely non-obvious and cannot be clarified through better naming or structure
 - Unused imports, variables, or dead code paths
+- Magic numbers — numeric literals (other than 0, 1, -1) used directly in logic should be extracted into named constants
 
 ---
 
@@ -210,10 +222,13 @@ Rules:
 
 If verdict is **LGTM**, skip this step.
 
-```
-Fix? (1) All  (2) Issues only  (3) Issues + warnings  (4) Nothing  (or describe custom selection)
-```
+Use the AskUserQuestion tool to prompt the user:
 
-Wait for response. Apply fixes with Serena MCP tools. Output a short summary of changes.
+- question: "Fix?"
+- options: ["All", "Issues only", "Issues + warnings", "Nothing"]
+
+If the user picks a custom selection (types a free-form answer instead of picking an option), apply only the findings they describe.
+
+Wait for the user's choice before proceeding. Apply fixes using `mcp__plugin_serena_serena__replace_symbol_body` for whole-symbol edits, `mcp__plugin_serena_serena__replace_content` for partial edits, and `mcp__plugin_serena_serena__create_text_file` for new files. Output a short summary of changes.
 
 $ARGUMENTS
