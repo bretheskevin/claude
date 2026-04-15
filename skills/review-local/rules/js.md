@@ -30,7 +30,7 @@
 - Flag assignment to `window.*` unless explicitly registering a public API
 - Flag implicit globals (assignment without declaration)
 
-**Security**:
+**Security** *(JS-specific — supplement to `security.md`, do not re-flag items already covered universally)*:
 - Flag `eval()` or `new Function()` — code injection risk
 - Flag `innerHTML` / `outerHTML` with dynamic content — use `textContent` or sanitize
 - Flag `setTimeout` / `setInterval` with string argument — same as eval
@@ -56,3 +56,8 @@
 - Flag commented-out code blocks — remove or explain
 - Flag unused variables and function parameters
 - Flag unreachable code after `return` / `throw`
+
+**Prototype pollution**:
+- Flag `Object.assign(target, userInput)` or spread (`{ ...target, ...userInput }`) where `userInput` comes from request body, query params, or other untrusted sources — attacker can inject `__proto__`, `constructor`, or `prototype` keys to modify `Object.prototype` globally
+- Flag deep merge utilities (`lodash.merge`, `deepmerge`, custom recursive merge) with untrusted input without key sanitization — same vector, recursive makes it worse
+- Flag `obj[userControlledKey] = value` without validating the key against a known allowlist — prototype pollution via computed property access

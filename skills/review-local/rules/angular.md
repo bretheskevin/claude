@@ -25,7 +25,7 @@
 - Flag `declarations` in `NgModule` — prefer standalone components with `imports` directly on the component
 - Flag `standalone: false` or missing `standalone: true` — all new components should be standalone
 
-**Security**:
+**Security** *(Angular-specific — supplement to `security.md`, do not re-flag items already covered universally)*:
 - Flag `bypassSecurityTrustHtml` / `bypassSecurityTrustUrl` / `bypassSecurityTrustResourceUrl` with user data — XSS bypass
 - Flag tokens or secrets stored in `localStorage` / `sessionStorage` — XSS-accessible; use httpOnly cookies
 - Flag API keys or secrets in `environment.ts` — built into the JS bundle, visible to anyone in devtools

@@ -32,11 +32,14 @@
 - Flag `.each` loops accessing associations without `includes` / `preload` / `eager_load`
 - Flag controller actions loading associations that should be eager-loaded in the query
 
+**Boolean method naming**:
+- Flag boolean predicate methods using `has_*?` prefix (e.g. `has_admin?`, `has_idp?`) — Ruby convention is to use plain `?` suffix without `has_` prefix (e.g. `admin?`, `idp?`). The `has_` prefix is a Java/JS convention that doesn't belong in idiomatic Ruby.
+
 **Routing & REST**:
 - Flag non-RESTful custom actions when a nested resource or new controller would be cleaner
 - Flag controllers with more than the 7 RESTful actions — split into multiple controllers
 
-**Security**:
+**Security** *(Rails-specific — supplement to `security.md`, do not re-flag items already covered universally)*:
 - Flag `find(params[:id])` without scoping to current user/tenant — use `current_user.resources.find(params[:id])` or equivalent authorization
 - Flag raw SQL with string interpolation — use parameterized queries or ActiveRecord methods
 - Flag `skip_before_action :verify_authenticity_token` without strong justification (API-only endpoints are OK)
@@ -50,3 +53,23 @@
 - Flag `render inline:` or `render html:` with user data — server-side XSS
 - Flag `==` for comparing tokens/secrets — use `ActiveSupport::SecurityUtils.secure_compare` (timing attack)
 - Flag `Tempfile` or file operations with user-controlled names without sanitization
+
+**Silent failures**:
+- Flag `.save` / `.update` / `.destroy` without checking the return value — these return `false` on failure and silently continue. Use bang versions (`.save!`, `.update!`, `.destroy!`) or explicitly handle the `false` return
+- Flag `.save` inside a conditional (`if @record.save`) that has no `else` branch — the failure path is silently swallowed
+
+**Transaction safety**:
+- Flag multi-model writes (2+ `create`/`update`/`destroy` calls) without `ActiveRecord::Base.transaction {}` — partial writes corrupt data
+- Flag `transaction` blocks that call external services (HTTP, email, job enqueue) — side effects can't be rolled back; move them after the transaction
+
+**Background jobs**:
+- Flag jobs that receive ActiveRecord objects as arguments instead of IDs — objects can't be reliably serialized/deserialized across retries; pass IDs and re-fetch
+- Flag jobs performing non-idempotent side effects (charging, sending emails, creating records) without idempotency guards — jobs retry on failure, causing duplicates
+- Flag `perform` methods without error handling for expected failures (network errors, record not found) — unhandled exceptions trigger infinite retries depending on the adapter
+
+**Data leakage**:
+- Flag `render json: @model` or `render json: @collection` without a serializer, `only:`, or `except:` — exposes all attributes including sensitive ones (`password_digest`, `api_key`, `reset_token`)
+- Flag `to_json` / `as_json` overrides that include sensitive attributes
+
+**Query performance**:
+- Flag `.each` / `.map` / `.select` on unbounded ActiveRecord scopes (no `limit`, no `find_each`) — loads entire table into memory; use `find_each` / `in_batches` for large datasets

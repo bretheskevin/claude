@@ -1,4 +1,5 @@
 ---
+name: epct
 description: Systematic implementation using Explore-Plan-Code-Test methodology
 ---
 

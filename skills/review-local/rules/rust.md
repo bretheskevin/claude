@@ -29,7 +29,7 @@
 - Flag `to_string()` / `format!()` in hot paths where `&str` or `Cow<str>` would suffice
 - Prefer `Vec::with_capacity` when the size is known ahead of time
 
-**Desktop security**:
+**Desktop security** *(Rust-specific — supplement to `security.md`, do not re-flag items already covered universally)*:
 - Flag `std::process::Command` with user-provided arguments without sanitization — command injection
 - Flag `std::process::Command` using shell invocation (`sh -c`, `cmd /c`) with interpolated input — shell injection
 - Flag file operations with user-provided paths without canonicalization (`std::fs::canonicalize`) — path traversal via `../`

@@ -46,6 +46,31 @@ Always flag as **issue** (never suggestion). Explain the attack vector, not just
 - Flag CORS with `Access-Control-Allow-Origin: *` combined with credentials — credential theft
 - Flag sensitive data transmitted over HTTP (non-TLS) or with TLS verification disabled
 
+**SSRF (Server-Side Request Forgery)**:
+- Flag backend HTTP requests where the URL, hostname, or IP comes from user input — attacker can scan internal networks, hit metadata endpoints (169.254.169.254), or access internal services
+- Flag URL allowlists based on regex or string matching without also resolving DNS and validating the IP — DNS rebinding bypasses hostname checks
+
+**Regex Denial of Service (ReDoS)**:
+- Flag regex with nested quantifiers (`(a+)+`, `(a|a)*`, `(.*a){n}`) applied to user-provided input — a single crafted string can freeze the process
+- Flag regex built dynamically from user input without escaping — use the language's regex escape utility (`Regexp.escape`, `re.escape`, `escapeRegExp`)
+
+**Race Conditions / TOCTOU**:
+- Flag check-then-act patterns on shared mutable resources without atomicity (e.g., "if balance >= amount, then deduct" without transaction/lock) — double-spend, privilege escalation
+- Flag file existence checks followed by file operations without locking — time-of-check to time-of-use gap
+- Flag non-atomic read-modify-write sequences on shared state (counters, flags, balances) without optimistic locking, database-level constraints, or mutex
+
+**HTTP Security Headers**:
+- Flag new server/middleware configuration missing security headers: `Content-Security-Policy`, `X-Frame-Options`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`
+- Flag `X-Frame-Options` set to `ALLOWALL` or missing on endpoints serving HTML — clickjacking
+- Flag `Strict-Transport-Security` missing or with short `max-age` on production HTTPS endpoints
+
+**Host Header Injection**:
+- Flag `request.host`, `Host` header, or `X-Forwarded-Host` used to construct URLs (password reset links, OAuth callbacks, redirect targets) without allowlist validation — attacker can poison links to redirect users to malicious domains
+
+**Unbounded Deserialization**:
+- Flag parsing untrusted input (network requests, file uploads, message queues) without size or depth limits — DoS via oversized or deeply nested payloads
+- Applies to any format: JSON, XML, MessagePack, Protobuf, YAML — if the parser accepts arbitrary input, enforce max size at the transport layer and max depth/nesting at the parser layer
+
 **Dependencies**:
 - Flag known-vulnerable dependency versions (check against advisories if version is visible in diff)
 - Flag wildcard version constraints (`*`, `>=0`) in package manifests — supply chain risk

@@ -6,7 +6,7 @@
 - Flag calculations or formatting logic — move to helpers (`number_to_currency`, `time_ago_in_words`) or decorators
 - Flag direct model method calls that compute/derive data — use presenter/decorator pattern
 
-**Security**:
+**Security** *(ERB-specific — supplement to `security.md`, do not re-flag items already covered universally)*:
 - Flag `raw()` or `.html_safe` without clear justification — XSS risk. Every usage must be audited.
 - Flag `<%== %>` (unescaped output) — same as `raw`, must be justified
 - Flag user-provided data rendered without sanitization — use `sanitize()` helper when HTML is intentional

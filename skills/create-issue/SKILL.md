@@ -1,4 +1,5 @@
 ---
+name: create-issue
 description: Create a well-structured GitHub issue with codebase context
 ---
 

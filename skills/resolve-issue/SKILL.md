@@ -1,4 +1,5 @@
 ---
+name: resolve-issue
 description: Resolve the first open GitHub issue using EPCT workflow
 ---
 

@@ -35,3 +35,10 @@
 **Performance**:
 - Flag specs using `create` when `build` or `build_stubbed` would work (no DB needed)
 - Flag missing `DatabaseCleaner` strategy awareness — transaction strategy is fastest for most specs
+
+**Time-dependent tests**:
+- Flag specs that depend on `Time.now`, `Date.today`, `DateTime.current`, or `Time.current` without `travel_to` / `freeze_time` — these pass at certain times of day and fail at others (month boundaries, midnight, DST transitions)
+- Flag `travel_to` without a block — must ensure time is restored after the example (block form auto-restores; manual form requires `travel_back` in `after`)
+
+**N+1 detection**:
+- Flag specs exercising associations in loops without asserting query count — tests pass but hide N+1 queries that kill production performance. Suggest `bullet` gem integration or `assert_queries` / `QueryCount` patterns
